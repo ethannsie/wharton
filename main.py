@@ -8,25 +8,29 @@ import numpy as np
 dataDictionary = pd.read_csv('data/dataDictionary.csv')
 games = pd.read_csv('data/games_2022.csv', parse_dates=['game_date'])
 
-start_date = '2022-01-10'
-end_date = '2022-01-31'
+start_date = '2021-11-01'
+end_date = '2022-03-31'
 
 games = games[(games['game_date'] >= start_date) & (games['game_date'] <= end_date)]
 
 teams = pd.read_csv('data/regionGroups.csv')
-teamList = []
+# teamList = []
+totalTeamList = games['team'].unique()
+teamData = {'team': totalTeamList}
+allTeams = pd.DataFrame(teamData)
+
+duncanData = pd.read_csv('data/duncan.csv')
 
 # # so we can associate each variable to what it is
 # dictData = {}
 # for count, item in enumerate(dataDictionary['variable']):
 #     dictData[item] = dataDictionary['description'][count]
 
-
 # so we know what team is in each region
-regionData = {}
-for count, item in enumerate(teams['team']):
-    regionData[item] = teams['region'][count]
-    teamList.append(item)
+# regionData = {}
+# for count, item in enumerate(teams['team']):
+#     regionData[item] = teams['region'][count]
+#     teamList.append(item)
 
 # CONDITION BASED FILTERING
 # filtered_df = df[df['col_2'] > 15]
@@ -67,52 +71,78 @@ offense = []
 scoreTotal = []
 effectiveList = []
 threeFieldGoals = []
-# print(teamList)
-for team in teamList:
-    teamIsolate = games[games['team'] == team]
-    totalPoses = 0
-    if teamIsolate.empty:
-        offense.append(0)
-        scoreTotal.append(0)
-        effectiveList.append(0)
-        threeFieldGoals.append(0)
-        continue
-    for posess in teamIsolate['posessions']:
-        totalPoses += posess
-    totalScore = 0
-    gameCount = 0
-    for score in teamIsolate['team_score']:
-        gameCount += 1
-        totalScore += score
-    effectiveTotal = 0
-    for effective in teamIsolate['effectiveFieldGoals']:
-        effectiveTotal += effective
-    goalTotal = 0
-    for goal in teamIsolate['threeFieldGoal']:
-        goalTotal += goal
-    offense.append(totalScore/totalPoses * 100)
-    scoreTotal.append(totalScore/gameCount)
-    effectiveList.append(effectiveTotal/gameCount)
-    threeFieldGoals.append(goalTotal/gameCount)
-teams['offensive rating'] = offense
-teams['totalScore'] = scoreTotal
-teams['effectiveTotal'] = effectiveList
-teams['threeFieldGoal'] = threeFieldGoals
-print(teams['totalScore'])
-# print(teams.nsmallest(100, 'offensive rating'))
-
 
 # win and loss
 wins = []
 loss = []
 listPose = []
 winRatio = []
-for team in teamList:
+
+# averages for each of these FGA_2,FGM_2,FGA_3,FGM_3,FTA,FTM,AST,BLK,STL,TOV,TOV_team,DREB,OREB
+FGA_2 = []
+FGM_2 = []
+FGA_3 = []
+FGM_3 = []
+FTA = []
+FTM = []
+AST = []
+BLK = []
+STL = []
+TOV = []
+DREB = []
+OREB = []
+
+# print(teamList)
+for team in teams['team'].tolist():
     teamIsolate = games[games['team'] == team]
+
+    totalPoses = 0
     totalWins = 0
     totalLoss = 0
     totalPosessions = 0
     totalGames = 0
+    totalScore = 0
+    gameCount = 0
+    effectiveTotal = 0
+    goalTotal = 0
+
+    totalFGA_2 = 0
+    totalFGM_2 = 0
+    totalFGA_3 = 0
+    totalFGM_3 = 0
+    totalFTA = 0
+    totalFTM = 0
+    totalAST = 0
+    totalBLK = 0
+    totalSTL = 0
+    totalTOV = 0
+    totalDREB = 0
+    totalOREB = 0
+
+    if teamIsolate.empty:
+        offense.append(0)
+        scoreTotal.append(0)
+        effectiveList.append(0)
+        threeFieldGoals.append(0)
+        wins.append(0)
+        loss.append(0)
+        winRatio.append(0)
+        listPose.append(0)
+        continue
+
+    for posess in teamIsolate['posessions']:
+        totalPoses += posess
+
+    for score in teamIsolate['team_score']:
+        gameCount += 1
+        totalScore += score
+
+    for effective in teamIsolate['effectiveFieldGoals']:
+        effectiveTotal += effective
+
+    for goal in teamIsolate['threeFieldGoal']:
+        goalTotal += goal
+
     for index, row in teamIsolate.iterrows():
         if row['team_score'] > row['opponent_team_score']:
             totalWins += 1
@@ -131,11 +161,187 @@ for team in teamList:
     except:
         winRatio.append(0)
 
+    offense.append(totalScore/totalPoses * 100)
+    scoreTotal.append(totalScore/gameCount)
+    effectiveList.append(effectiveTotal/gameCount)
+    threeFieldGoals.append(goalTotal/gameCount)
+
+teams['offensive rating'] = offense
+teams['totalScore'] = scoreTotal
+teams['effectiveTotal'] = effectiveList
+teams['threeFieldGoal'] = threeFieldGoals
 teams['wins'] = wins
 teams['loss'] = loss
 teams['winRatio'] = winRatio
 teams['posessions'] = listPose
-print(winRatio)
+
+
+# offensive rating total points scored / total posessions * 100
+offense = []
+scoreTotal = []
+effectiveList = []
+threeFieldGoals = []
+
+# win and loss
+wins = []
+loss = []
+listPose = []
+winRatio = []
+
+FGA_2 = []
+FGM_2 = []
+FGA_3 = []
+FGM_3 = []
+FTA = []
+FTM = []
+AST = []
+BLK = []
+STL = []
+TOV = []
+DREB = []
+OREB = []
+
+# print(teamList)
+for team in allTeams['team'].tolist():
+    teamIsolate = games[games['team'] == team]
+    totalPoses = 0
+    totalWins = 0
+    totalLoss = 0
+    totalPosessions = 0
+    totalGames = 0
+    totalFGA_2 = 0
+    totalFGM_2 = 0
+    totalFGA_3 = 0
+    totalFGM_3 = 0
+    totalFTA = 0
+    totalFTM = 0
+    totalAST = 0
+    totalBLK = 0
+    totalSTL = 0
+    totalTOV = 0
+    totalDREB = 0
+    totalOREB = 0
+
+    if teamIsolate.empty:
+        offense.append(0)
+        scoreTotal.append(0)
+        effectiveList.append(0)
+        threeFieldGoals.append(0)
+        wins.append(0)
+        loss.append(0)
+        winRatio.append(0)
+        listPose.append(0)
+        FGA_2.append(0)
+        FGM_2.append(0)
+        FGA_3.append(0)
+        FGM_3.append(0)
+        FTA.append(0)
+        FTM.append(0)
+        AST.append(0)
+        BLK.append(0)
+        STL.append(0)
+        TOV.append(0)
+        DREB.append(0)
+        OREB.append(0)
+        continue
+
+    for item in teamIsolate['FGA_2']:
+        totalFGA_2 += item
+    for item in teamIsolate['FGM_2']:
+        totalFGM_2 += item
+    for item in teamIsolate['FGA_2']:
+        totalFGA_3 += item
+    for item in teamIsolate['FGM_3']:
+        totalFGM_3 += item
+    for item in teamIsolate['FTA']:
+        totalFTA += item
+    for item in teamIsolate['FTM']:
+        totalFTM += item
+    for item in teamIsolate['AST']:
+        totalAST += item
+    for item in teamIsolate['BLK']:
+        totalBLK += item
+    for item in teamIsolate['STL']:
+        totalSTL += item
+    for item in teamIsolate['TOV']:
+        totalTOV += item
+    for item in teamIsolate['TOV_team']:
+        totalTOV += item
+    for item in teamIsolate['DREB']:
+        totalDREB += item
+    for item in teamIsolate['OREB']:
+        totalOREB += item
+
+    for posess in teamIsolate['posessions']:
+        totalPoses += posess
+    totalScore = 0
+    gameCount = 0
+    for score in teamIsolate['team_score']:
+        gameCount += 1
+        totalScore += score
+    effectiveTotal = 0
+    for effective in teamIsolate['effectiveFieldGoals']:
+        effectiveTotal += effective
+    goalTotal = 0
+    for goal in teamIsolate['threeFieldGoal']:
+        goalTotal += goal
+
+    for index, row in teamIsolate.iterrows():
+        if row['team_score'] > row['opponent_team_score']:
+            totalWins += 1
+        else:
+            totalLoss += 1
+        totalGames += 1
+        totalPosessions += row['posessions']
+    wins.append(totalWins)
+    loss.append(totalLoss)
+    try:
+        listPose.append(totalPosessions/totalGames)
+    except:
+        listPose.append(0)
+    try:
+        winRatio.append(totalWins/(totalWins + totalLoss))
+    except:
+        winRatio.append(0)
+
+    offense.append(totalScore/totalPoses * 100)
+    scoreTotal.append(totalScore/gameCount)
+    effectiveList.append(effectiveTotal/gameCount)
+    threeFieldGoals.append(goalTotal/gameCount)
+    FGA_2.append(totalFGA_2/gameCount)
+    FGM_2.append(totalFGM_2/gameCount)
+    FGA_3.append(totalFGA_3/gameCount)
+    FGM_3.append(totalFGM_3/gameCount)
+    FTA.append(totalFTA/gameCount)
+    FTM.append(totalFTM/gameCount)
+    AST.append(totalAST/gameCount)
+    BLK.append(totalBLK/gameCount)
+    STL.append(totalSTL/gameCount)
+    TOV.append(totalTOV/gameCount)
+    DREB.append(totalDREB/gameCount)
+    OREB.append(totalOREB/gameCount)
+
+allTeams['offensive rating'] = offense
+allTeams['totalScore'] = scoreTotal
+allTeams['effectiveTotal'] = effectiveList
+allTeams['threeFieldGoal'] = threeFieldGoals
+allTeams['wins'] = wins
+allTeams['loss'] = loss
+allTeams['winRatio'] = winRatio
+allTeams['posessions'] = listPose
+allTeams['FGA_2'] = FGA_2
+allTeams['FGM_2'] = FGM_2
+allTeams['FGA_3'] = FGA_3
+allTeams['FGM_3'] = FGM_3
+allTeams['FTA'] = FTA
+allTeams['FTM'] = FTM
+allTeams['AST'] = AST
+allTeams['BLK'] = BLK
+allTeams['STL'] = STL
+allTeams['TOV'] = TOV
+allTeams['DREB'] = DREB
+allTeams['OREB'] = OREB
+
 # standardized_ratios = [(x - min(winRatio)) / (max(winRatio) - min(winRatio)) for x in winRatio]
 
 
@@ -218,67 +424,107 @@ print(winRatio)
 #     "marshall_thundering_herd"
 # ]
 
-winRatios = []
-for team, winRatio in zip(teams['team'], teams['winRatio']):
-    try:
-        if team in someTeams:  # Check if the current team is in 'someTeams'
-            winRatios.append(winRatio)  # Append the corresponding win ratio
-    except:
-        winRatios.append(winRatio)
-
-posessions = []
-for team, posession in zip(teams['team'], teams['posessions']):
-    try:
-        if team in someTeams:
-            posessions.append(posession)
-    except:
-        posessions.append(posession)
-
-offensiveRate = []
-for team, offense in zip(teams['team'], teams['offensive rating']):
-    try:
-        if team in someTeams:
-            offensiveRate.append(offense)
-    except:
-        offensiveRate.append(offense)
-
-score = []
-for team, total in zip(teams['team'], teams['totalScore']):
-    try:
-        if team in someTeams:
-            score.append(total)
-    except:
-        score.append(total)
-
-effec = []
-for team, effective in zip(teams['team'], teams['effectiveTotal']):
-    try:
-        if team in someTeams:
-            effec.append(effective)
-    except:
-        effec.append(effective)
-
-three = []
-for team, threeField in zip(teams['team'], teams['threeFieldGoal']):
-    try:
-        if team in someTeams:
-            three.append(threeField)
-    except:
-        three.append(threeField)
+# winRatios = []
+# for team, winRatio in zip(teams['team'], teams['winRatio']):
+#     try:
+#         if team in someTeams:  # Check if the current team is in 'someTeams'
+#             winRatios.append(winRatio)  # Append the corresponding win ratio
+#     except:
+#         winRatios.append(winRatio)
+#
+# posessions = []
+# for team, posession in zip(teams['team'], teams['posessions']):
+#     try:
+#         if team in someTeams:
+#             posessions.append(posession)
+#     except:
+#         posessions.append(posession)
+#
+# offensiveRate = []
+# for team, offense in zip(teams['team'], teams['offensive rating']):
+#     try:
+#         if team in someTeams:
+#             offensiveRate.append(offense)
+#     except:
+#         offensiveRate.append(offense)
+#
+# score = []
+# for team, total in zip(teams['team'], teams['totalScore']):
+#     try:
+#         if team in someTeams:
+#             score.append(total)
+#     except:
+#         score.append(total)
+#
+# effec = []
+# for team, effective in zip(teams['team'], teams['effectiveTotal']):
+#     try:
+#         if team in someTeams:
+#             effec.append(effective)
+#     except:
+#         effec.append(effective)
+#
+# three = []
+# for team, threeField in zip(teams['team'], teams['threeFieldGoal']):
+#     try:
+#         if team in someTeams:
+#             three.append(threeField)
+#     except:
+#         three.append(threeField)
 
 # standardized = []
 # for team, standards in zip(teams['team'], teams['standardWinRatio']):
 #     if team in someTeams:
 #         standardized.append(standards)
 
+# data = {
+#     "winRatio": winRatios,
+#     # "stdWinRatio": standardized,
+#     "effective": effec,
+#     "possessions": posessions,
+#     "offensive rating": offensiveRate,
+#     "three field goals": three,
+#     "total score": score
+# }
+
 data = {
-    "winRatio": winRatios,
+    "offensive rating": duncanData['avg_offensive_rating'].tolist(),
+    "defensive rating": duncanData['avg_defensive_rating'].tolist(),
+    "win percentage": duncanData['win_percentage'].tolist()
+}
+print(teams)
+
+data = {
+    "winRatio": teams['winRatio'].tolist(),
     # "stdWinRatio": standardized,
-    "effective": effec,
-    "possessions": posessions,
-    "offensive rating": offensiveRate,
-    "three field goals": three,
-    "total score": score
+    "effective": teams['effectiveTotal'].tolist(),
+    "possessions": teams['posessions'].tolist(),
+    "offensive rating": teams['offensive rating'].tolist(),
+    "three field goals": teams['threeFieldGoal'].tolist(),
+    "total score": teams['totalScore'].tolist()
+}
+
+data = {
+    "winRatio": allTeams['winRatio'].tolist(),
+    # "stdWinRatio": standardized,
+    "effec": allTeams['effectiveTotal'].tolist(),
+    "posess": allTeams['posessions'].tolist(),
+    "offense": allTeams['offensive rating'].tolist(),
+    "3Goal": allTeams['threeFieldGoal'].tolist(),
+    "score": allTeams['totalScore'].tolist(),
+    "FGA_2": allTeams['FGA_2'].tolist(),
+    "FGM_2": allTeams['FGM_2'].tolist(),
+    "FGA_3": allTeams['FGA_3'].tolist(),
+    "FGM_3": allTeams['FGM_3'].tolist(),
+    "FTA": allTeams['FTA'].tolist(),
+    "FTM": allTeams['FTM'].tolist(),
+    "AST": allTeams['AST'].tolist(),
+    "BLK": allTeams['BLK'].tolist(),
+    "STL": allTeams['STL'].tolist(),
+    "TOV": allTeams['TOV'].tolist(),
+    "DREB": allTeams['DREB'].tolist(),
+    "OREB": allTeams['OREB'].tolist()
+
 }
 
 teams = pd.DataFrame(data)
@@ -292,9 +538,15 @@ print(correlation_matrix)
 
 # Plot the correlation matrix as a heatmap
 plt.figure(figsize=(6, 4))
-sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", fmt=".2f")
-plt.title("Correlation Matrix: Win Ratio vs Possessions")
+# threshold = 0.6  # Set your desired threshold here
+# mask = np.abs(correlation_matrix) > threshold  # For values greater than the threshold
+sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", annot_kws={"size": 7}, center=0)
+plt.title("Correlation Matrix of Averaged Stats with All Teams")
 plt.show()
+
+
+# sns.pairplot(teams)
+# plt.show()
 
 # # print(games[games['possessions'] < 10])
 # print(games.nsmallest(100, 'possessions'))
