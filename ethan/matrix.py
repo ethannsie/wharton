@@ -5,21 +5,21 @@ import pandas as pd
 import numpy as np
 
 # Load the CSV file into a DataFrame
-dataDictionary = pd.read_csv('data/dataDictionary.csv')
-games = pd.read_csv('data/games_2022.csv', parse_dates=['game_date'])
+dataDictionary = pd.read_csv('../data/dataDictionary.csv')
+games = pd.read_csv('../data/games_2022.csv', parse_dates=['game_date'])
 
 start_date = '2021-11-01'
 end_date = '2022-03-31'
 
 games = games[(games['game_date'] >= start_date) & (games['game_date'] <= end_date)]
 
-teams = pd.read_csv('data/regionGroups.csv')
+teams = pd.read_csv('../data/regionGroups.csv')
 # teamList = []
 totalTeamList = games['team'].unique()
 teamData = {'team': totalTeamList}
 allTeams = pd.DataFrame(teamData)
 
-duncanData = pd.read_csv('data/duncan.csv')
+duncanData = pd.read_csv('../data/duncan.csv')
 
 # # so we can associate each variable to what it is
 # dictData = {}
