@@ -43,5 +43,6 @@ for ranking in teamRankings:
 
 print("-----------------------------------")
 print("-----POST CONFERENCE RANKINGS------")
-for rank in teamRankings:
+sort = sorted(teamRankings, key=lambda x: x[1], reverse=True)
+for rank in sort:
     print(rank)
