@@ -359,16 +359,17 @@ for _, row in colleyData.iterrows():
     winner = row['winner']
     loser = row['loser']
 
-    start_date_obj = datetime.strptime("2021-11-09 00:00:00", "%Y-%m-%d %H:%M:%S")
-    end_date_obj = datetime.strptime(str(row['date']), "%Y-%m-%d %H:%M:%S")
-    days_difference = (end_date_obj - start_date_obj).days
+    if winner != loser:
+        start_date_obj = datetime.strptime("2021-11-09 00:00:00", "%Y-%m-%d %H:%M:%S")
+        end_date_obj = datetime.strptime(str(row['date']), "%Y-%m-%d %H:%M:%S")
+        days_difference = (end_date_obj - start_date_obj).days
 
-    weighting = math.floor(days_difference/14 + 1)
-    total_games[winner] += weighting
-    total_games[loser] += weighting
+        weighting = math.floor(days_difference/14 + 1)
+        total_games[winner] += weighting
+        total_games[loser] += weighting
 
-    pairwise_results[(winner, loser)]['wins'] += weighting
-    pairwise_results[(loser, winner)]['losses'] += weighting
+        pairwise_results[(winner, loser)]['wins'] += weighting
+        pairwise_results[(loser, winner)]['losses'] += weighting
 
 # print("Total Games:", total_games)
 # print("Pairwise Results:", pairwise_results)
