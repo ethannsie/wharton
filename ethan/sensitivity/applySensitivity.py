@@ -29,6 +29,32 @@ for ranking in teamRankings:
 
 print("-----------------------------------")
 print("-----POST CONFERENCE RANKINGS------")
+teamRanking = {}
 sort = sorted(teamRankings, key=lambda x: x[1], reverse=True)
 for rank in sort:
-    print(rank)
+    teamRanking[rank[0]] = rank[1]
+
+test_data = teamSensitivity.returnTeamData()
+# print(test_data)
+#
+# print(teamRanking)
+
+accurateGames = 0
+closeGames = 0
+total = 0
+for _, row in test_data.iterrows():
+    if teamRanking[row['winner']] > teamRanking[row['loser']]:
+        accurateGames += 1
+    #use a STD or smth
+    elif abs(teamRanking[row['winner']] - teamRanking[row['loser']]) < 0.01:
+        # take something into consideration in this case
+        closeGames += 1
+    print(f"winner: {row['winner']} | loser: {row['loser']}")
+    print(f"winner: {teamRanking[row['winner']]} | loser: {teamRanking[row['loser']]}")
+    total += 1
+
+print(f"Accurate Games: {accurateGames}")
+print(f"Close Games: {closeGames}")
+print(f"Total Games: {total}")
+print(accurateGames/total)
+print((accurateGames + closeGames)/total)

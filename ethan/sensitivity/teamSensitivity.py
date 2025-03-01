@@ -365,7 +365,7 @@ for _, row in train_data.iterrows():
     end_date_obj = datetime.strptime(str(row['date']), "%Y-%m-%d %H:%M:%S")
     days_difference = (end_date_obj - start_date_obj).days
 
-    weighting = math.floor(days_difference/14 + 1)
+    weighting = math.floor(days_difference/7 + 1)
     total_games[winner] += weighting
     total_games[loser] += weighting
 
@@ -428,3 +428,6 @@ for item in sortedRankList:
 
 def returnTeamRank():
     return sortedRankList
+
+def returnTeamData():
+    return test_data

@@ -13,7 +13,7 @@ end_date = '2022-03-31'
 
 games = games[(games['game_date'] >= start_date) & (games['game_date'] <= end_date)]
 
-teams = pd.read_csv('../data/regionGroups.csv')
+teams = pd.read_csv('../data/updateRegionGroups.csv')
 # teamList = []
 totalTeamList = games['team'].unique()
 teamData = {'team': totalTeamList}
@@ -68,9 +68,11 @@ games['threeFieldGoal'] = threeFieldGoal
 
 # offensive rating total points scored / total posessions * 100
 offense = []
+defense = []
 scoreTotal = []
 effectiveList = []
 threeFieldGoals = []
+netRanking = []
 
 # win and loss
 wins = []
@@ -95,23 +97,22 @@ OREB = []
 # print(teamList)
 for team in teams['team'].tolist():
     teamIsolate = games[games['team'] == team]
-
+    gameCount = 0
     totalPoses = 0
     totalWins = 0
     totalLoss = 0
     totalPosessions = 0
     totalGames = 0
-    totalScore = 0
-    gameCount = 0
-    effectiveTotal = 0
-    goalTotal = 0
-
     totalFGA_2 = 0
     totalFGM_2 = 0
     totalFGA_3 = 0
     totalFGM_3 = 0
     totalFTA = 0
     totalFTM = 0
+    totalScore = 0
+    oppScore = 0
+    effectiveTotal = 0
+    goalTotal = 0
     totalAST = 0
     totalBLK = 0
     totalSTL = 0
@@ -121,6 +122,8 @@ for team in teams['team'].tolist():
 
     if teamIsolate.empty:
         offense.append(0)
+        defense.append(0)
+        netRanking.append(0)
         scoreTotal.append(0)
         effectiveList.append(0)
         threeFieldGoals.append(0)
@@ -128,7 +131,47 @@ for team in teams['team'].tolist():
         loss.append(0)
         winRatio.append(0)
         listPose.append(0)
+        FGA_2.append(0)
+        FGM_2.append(0)
+        FGA_3.append(0)
+        FGM_3.append(0)
+        FTA.append(0)
+        FTM.append(0)
+        AST.append(0)
+        BLK.append(0)
+        STL.append(0)
+        TOV.append(0)
+        DREB.append(0)
+        OREB.append(0)
+
         continue
+
+    for item in teamIsolate['FGA_2']:
+        totalFGA_2 += item
+    for item in teamIsolate['FGM_2']:
+        totalFGM_2 += item
+    for item in teamIsolate['FGA_2']:
+        totalFGA_3 += item
+    for item in teamIsolate['FGM_3']:
+        totalFGM_3 += item
+    for item in teamIsolate['FTA']:
+        totalFTA += item
+    for item in teamIsolate['FTM']:
+        totalFTM += item
+    for item in teamIsolate['AST']:
+        totalAST += item
+    for item in teamIsolate['BLK']:
+        totalBLK += item
+    for item in teamIsolate['STL']:
+        totalSTL += item
+    for item in teamIsolate['TOV']:
+        totalTOV += item
+    for item in teamIsolate['TOV_team']:
+        totalTOV += item
+    for item in teamIsolate['DREB']:
+        totalDREB += item
+    for item in teamIsolate['OREB']:
+        totalOREB += item
 
     for posess in teamIsolate['posessions']:
         totalPoses += posess
@@ -136,6 +179,9 @@ for team in teams['team'].tolist():
     for score in teamIsolate['team_score']:
         gameCount += 1
         totalScore += score
+
+    for score in teamIsolate['opponent_team_score']:
+        oppScore += score
 
     for effective in teamIsolate['effectiveFieldGoals']:
         effectiveTotal += effective
@@ -160,12 +206,27 @@ for team in teams['team'].tolist():
         winRatio.append(totalWins/(totalWins + totalLoss))
     except:
         winRatio.append(0)
-
+    defense.append(oppScore/totalPosessions * 100)
     offense.append(totalScore/totalPoses * 100)
+    netRanking.append(totalScore/totalPoses * 100 - oppScore/totalPosessions * 100)
     scoreTotal.append(totalScore/gameCount)
     effectiveList.append(effectiveTotal/gameCount)
     threeFieldGoals.append(goalTotal/gameCount)
+    FGA_2.append(totalFGA_2/gameCount)
+    FGM_2.append(totalFGM_2/gameCount)
+    FGA_3.append(totalFGA_3/gameCount)
+    FGM_3.append(totalFGM_3/gameCount)
+    FTA.append(totalFTA/gameCount)
+    FTM.append(totalFTM/gameCount)
+    AST.append(totalAST/gameCount)
+    BLK.append(totalBLK/gameCount)
+    STL.append(totalSTL/gameCount)
+    TOV.append(totalTOV/gameCount)
+    DREB.append(totalDREB/gameCount)
+    OREB.append(totalOREB/gameCount)
 
+teams['net ranking'] = netRanking
+teams['defensive rating'] = defense
 teams['offensive rating'] = offense
 teams['totalScore'] = scoreTotal
 teams['effectiveTotal'] = effectiveList
@@ -174,13 +235,26 @@ teams['wins'] = wins
 teams['loss'] = loss
 teams['winRatio'] = winRatio
 teams['posessions'] = listPose
-
+teams['FGA_2'] = FGA_2
+teams['FGM_2'] = FGM_2
+teams['FGA_3'] = FGA_3
+teams['FGM_3'] = FGM_3
+teams['FTA'] = FTA
+teams['FTM'] = FTM
+teams['AST'] = AST
+teams['BLK'] = BLK
+teams['STL'] = STL
+teams['TOV'] = TOV
+teams['DREB'] = DREB
+teams['OREB'] = OREB
 
 # offensive rating total points scored / total posessions * 100
 offense = []
+defense = []
 scoreTotal = []
 effectiveList = []
 threeFieldGoals = []
+netRanking = []
 
 # win and loss
 wins = []
@@ -188,6 +262,7 @@ loss = []
 listPose = []
 winRatio = []
 
+# averages for each of these FGA_2,FGM_2,FGA_3,FGM_3,FTA,FTM,AST,BLK,STL,TOV,TOV_team,DREB,OREB
 FGA_2 = []
 FGM_2 = []
 FGA_3 = []
@@ -204,6 +279,7 @@ OREB = []
 # print(teamList)
 for team in allTeams['team'].tolist():
     teamIsolate = games[games['team'] == team]
+    gameCount = 0
     totalPoses = 0
     totalWins = 0
     totalLoss = 0
@@ -215,6 +291,10 @@ for team in allTeams['team'].tolist():
     totalFGM_3 = 0
     totalFTA = 0
     totalFTM = 0
+    totalScore = 0
+    oppScore = 0
+    effectiveTotal = 0
+    goalTotal = 0
     totalAST = 0
     totalBLK = 0
     totalSTL = 0
@@ -224,6 +304,8 @@ for team in allTeams['team'].tolist():
 
     if teamIsolate.empty:
         offense.append(0)
+        defense.append(0)
+        netRanking.append(0)
         scoreTotal.append(0)
         effectiveList.append(0)
         threeFieldGoals.append(0)
@@ -271,7 +353,8 @@ for team in allTeams['team'].tolist():
         totalDREB += item
     for item in teamIsolate['OREB']:
         totalOREB += item
-
+    for score in teamIsolate['opponent_team_score']:
+        oppScore += score
     for posess in teamIsolate['posessions']:
         totalPoses += posess
     totalScore = 0
@@ -303,10 +386,11 @@ for team in allTeams['team'].tolist():
         winRatio.append(totalWins/(totalWins + totalLoss))
     except:
         winRatio.append(0)
-
+    defense.append(oppScore/totalPosessions * 100)
     offense.append(totalScore/totalPoses * 100)
     scoreTotal.append(totalScore/gameCount)
     effectiveList.append(effectiveTotal/gameCount)
+    netRanking.append(totalScore/totalPoses * 100 - oppScore/totalPosessions * 100)
     threeFieldGoals.append(goalTotal/gameCount)
     FGA_2.append(totalFGA_2/gameCount)
     FGM_2.append(totalFGM_2/gameCount)
@@ -322,6 +406,7 @@ for team in allTeams['team'].tolist():
     OREB.append(totalOREB/gameCount)
 
 allTeams['offensive rating'] = offense
+allTeams['defensive rating'] = defense
 allTeams['totalScore'] = scoreTotal
 allTeams['effectiveTotal'] = effectiveList
 allTeams['threeFieldGoal'] = threeFieldGoals
@@ -341,7 +426,7 @@ allTeams['STL'] = STL
 allTeams['TOV'] = TOV
 allTeams['DREB'] = DREB
 allTeams['OREB'] = OREB
-
+allTeams['net ranking'] = netRanking
 # standardized_ratios = [(x - min(winRatio)) / (max(winRatio) - min(winRatio)) for x in winRatio]
 
 
@@ -505,6 +590,31 @@ data = {
 }
 
 data = {
+    "winRatio": teams['winRatio'].tolist(),
+    # "stdWinRatio": standardized,
+    "effec": teams['effectiveTotal'].tolist(),
+    "posess": teams['posessions'].tolist(),
+    "offense": teams['offensive rating'].tolist(),
+    "3Goal": teams['threeFieldGoal'].tolist(),
+    "score": teams['totalScore'].tolist(),
+    "FGA_2": teams['FGA_2'].tolist(),
+    "FGM_2": teams['FGM_2'].tolist(),
+    "FGA_3": teams['FGA_3'].tolist(),
+    "FGM_3": teams['FGM_3'].tolist(),
+    "FTA": teams['FTA'].tolist(),
+    "FTM": teams['FTM'].tolist(),
+    "AST": teams['AST'].tolist(),
+    "BLK": teams['BLK'].tolist(),
+    "STL": teams['STL'].tolist(),
+    "TOV": teams['TOV'].tolist(),
+    "DREB": teams['DREB'].tolist(),
+    "OREB": teams['OREB'].tolist(),
+    "defensive": teams['defensive rating'].tolist(),
+    "net off/def": teams['net ranking'].tolist()
+
+}
+
+data = {
     "winRatio": allTeams['winRatio'].tolist(),
     # "stdWinRatio": standardized,
     "effec": allTeams['effectiveTotal'].tolist(),
@@ -523,7 +633,9 @@ data = {
     "STL": allTeams['STL'].tolist(),
     "TOV": allTeams['TOV'].tolist(),
     "DREB": allTeams['DREB'].tolist(),
-    "OREB": allTeams['OREB'].tolist()
+    "OREB": allTeams['OREB'].tolist(),
+    "defensive": allTeams['defensive rating'].tolist(),
+    "net off/def": allTeams['net ranking'].tolist()
 
 }
 
