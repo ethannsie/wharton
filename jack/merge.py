@@ -5,11 +5,11 @@ import pandas as pd
 
 # Load the datasets
 teams_df = pd.read_csv('../data/updateRegionGroups.csv')
-ratings_df = pd.read_csv('../data/ratings.csv')
+ratings_df = pd.read_csv('three_rankings.csv')
 
 # Rename columns for clarity
 teams_df.columns = ['Team', 'Region', 'Conference']
-ratings_df.columns = ['Team', 'agg_rating_1', 'agg_rating_2']
+ratings_df.columns = ['Team', 'agg_rating_1', 'agg_rating_2', 'colley_rating']
 
 # Merge the datasets on the 'Team' column
 merged_df = pd.merge(teams_df, ratings_df, on='Team')
