@@ -10,11 +10,13 @@ import colleyDivisions
 import colleyTeams
 
 teams = pd.read_csv('../data/updateRegionGroups.csv')
-teamr = pd.read_csv('three_rankings.csv')
+teamr = pd.read_csv('merged_teams.csv')
 #print(teamr)
 
 teamRankings1 = teamr[['team', 'agg_rating_1']].values.tolist()
 teamRankings2 = teamr[['team', 'agg_rating_2']].values.tolist()
+teamRankingsOffensive = teamr[['team', 'offensive_rating']].values.tolist()
+teamRankingsDefensive = teamr[['team', 'defensive_rating']].values.tolist()
 teamRankingsColley = teamr[['team', 'colley_rating']].values.tolist()
 
 divisionRankings = colleyDivisions.returnDivisionRank()

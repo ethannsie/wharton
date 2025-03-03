@@ -11,11 +11,19 @@ import teamSensitivity
 import teamNetRank
 
 teams = pd.read_csv('../../data/updateRegionGroups.csv')
-teamr = pd.read_csv('../three_rankings.csv')
+teamr = pd.read_csv('../merged_teams.csv')
 
 teamRankings1 = teamr[['team', 'agg_rating_1']].values.tolist()
 teamRankings2 = teamr[['team', 'agg_rating_2']].values.tolist()
+teamRankingsOffensive = teamr[['team', 'offensive_rating']].values.tolist()
+teamRankingsDefensive = teamr[['team', 'defensive_rating']].values.tolist()
 teamRankingsColley = teamr[['team', 'colley_rating']].values.tolist
+
+teamRankings1_dict = {team: float(rating) for team, rating in teamRankings1}
+teamRankings2_dict = {team: float(rating) for team, rating in teamRankings2}
+teamRankingsOffensive_dict = {team: float(rating) for team, rating in teamRankingsOffensive}
+teamRankingsDefensive_dict = {team: float(rating) for team, rating in teamRankingsDefensive}
+
 
 teamRankings = teamSensitivity.returnTeamRank()
 divisionRankings = divisionSensitivity.returnDivisionRank()
@@ -74,6 +82,32 @@ accurateGames = 0
 closeGames = 0
 total = 0
 for _, row in test_data.iterrows():
+    winner = row['winner']
+    loser = row['loser']
+    winner_conf = teamConference[winner]
+    loser_conf = teamConference[loser]
+    
+    winner_rating = float(teamRanking[winner]) * float(divisionRankings[winner_conf])
+    loser_rating = float(teamRanking[loser]) * float(divisionRankings[loser_conf])
+    
+    if abs(winner_rating - loser_rating) < 0.01:
+        # Use alternative ranking for close games
+        #winner_rating = float(teamRankings2_dict[winner]) * float(divisionRankings[winner_conf])
+        #loser_rating = float(teamRankings2_dict[loser]) * float(divisionRankings[loser_conf])
+        
+        if winner_rating > loser_rating:
+            accurateGames += 1
+        else:
+            closeGames += 1
+    elif winner_rating > loser_rating:
+        accurateGames += 1
+    else:
+        closeGames += 1
+    
+    total += 1
+
+'''   
+for _, row in test_data.iterrows():
     if float(teamRanking[row['winner']]) * divisionRankings[teamConference[row['winner']]] > float(teamRanking[row['loser']]) * divisionRankings[teamConference[row['loser']]]:
         accurateGames += 1
     #use a STD or smth
@@ -83,6 +117,7 @@ for _, row in test_data.iterrows():
     # print(f"winner: {row['winner']} | loser: {row['loser']}")
     # print(f"winner: {teamRanking[row['winner']]} | loser: {teamRanking[row['loser']]}")
     total += 1
+'''
 
 print(f"Accurate Games: {accurateGames}")
 print(f"Close Games: {closeGames}")
