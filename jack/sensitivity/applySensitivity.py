@@ -11,6 +11,11 @@ import teamSensitivity
 import teamNetRank
 
 teams = pd.read_csv('../../data/updateRegionGroups.csv')
+teamr = pd.read_csv('../three_rankings.csv')
+
+teamRankings1 = teamr[['team', 'agg_rating_1']].values.tolist()
+teamRankings2 = teamr[['team', 'agg_rating_2']].values.tolist()
+teamRankingsColley = teamr[['team', 'colley_rating']].values.tolist
 
 teamRankings = teamSensitivity.returnTeamRank()
 divisionRankings = divisionSensitivity.returnDivisionRank()
@@ -30,12 +35,12 @@ for r in netRating:
 print(rankLOL)
 
 print("-----PRE CONFERENCE RANKINGS------")
-for rank in teamRankings:
+for rank in teamRankings2:
     print(rank)
 
 newRanking = []
 
-for ranking in teamRankings:
+for ranking in teamRankings2:
     conference = teamConference[ranking[0]]
     ranking[1] = float(ranking[1] * divisionRankings[conference])
     newRanking.append(ranking[1])
@@ -47,14 +52,14 @@ def min_max_normalize(data):
 
 normalized_ranking = min_max_normalize(newRanking)
 
-for count, ranking in enumerate(teamRankings):
+for count, ranking in enumerate(teamRankings2):
     ranking[1] = normalized_ranking[count]
     ranking[1] *= rankLOL.get(ranking[0])
 
 print("-----------------------------------")
 print("-----POST CONFERENCE and net rating RANKINGS------")
 teamRanking = {}
-sort = sorted(teamRankings, key=lambda x: x[1], reverse=True)
+sort = sorted(teamRankings2, key=lambda x: x[1], reverse=True)
 for rank in sort:
     teamRanking[rank[0]] = rank[1]
 
